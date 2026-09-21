@@ -1,0 +1,19 @@
+{
+  "name": "road-riot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Road Riot - an online multiplayer arcade motorcycle combat racer for the browser (up to 8 players).",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

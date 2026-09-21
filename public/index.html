@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Road Riot - online multiplayer arcade motorcycle combat racing for up to 8 riders, playable in Chrome." />
+    <meta name="theme-color" content="#11141c" />
+    <title>ROAD RIOT — Online Moto Combat Racing</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8F%8D%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <canvas id="stage" aria-label="Race view"></canvas>
+
+    <div id="hud" class="hud hidden" aria-hidden="true">
+      <div class="hud-top">
+        <div class="hud-block place">
+          <span id="hudPlace" class="big">1st</span>
+          <span class="label">of <span id="hudTotal">8</span></span>
+        </div>
+        <div class="hud-block clock">
+          <span id="hudTime" class="big">0:00.00</span>
+          <span class="label">race time</span>
+        </div>
+        <div class="hud-block net">
+          <span id="hudPing" class="big">--</span>
+          <span class="label">ping ms</span>
+        </div>
+      </div>
+
+      <div class="hud-standings" id="hudStandings"></div>
+
+      <div class="hud-progress">
+        <div class="rail" id="hudRail"></div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="gauge health">
+          <span class="label">DAMAGE</span>
+          <div class="bar"><i id="hudHealth"></i></div>
+        </div>
+        <div class="speedo">
+          <span id="hudSpeed" class="big">0</span>
+          <span class="label">km/h</span>
+        </div>
+        <div class="gauge nitro">
+          <span class="label">NITRO</span>
+          <div class="bar"><i id="hudNitro"></i></div>
+          <span class="weapon hidden" id="hudWeapon">CLUB x0</span>
+        </div>
+      </div>
+
+      <div class="feed" id="hudFeed" aria-live="polite"></div>
+      <div class="center-msg" id="centerMsg"></div>
+      <div class="damage-flash" id="damageFlash"></div>
+    </div>
+
+    <div id="touch" class="touch hidden" aria-hidden="true">
+      <div class="touch-left">
+        <button class="tbtn" data-key="left" aria-label="Steer left">◀</button>
+        <button class="tbtn" data-key="right" aria-label="Steer right">▶</button>
+      </div>
+      <div class="touch-right">
+        <button class="tbtn small" data-key="punch" aria-label="Punch">PUNCH</button>
+        <button class="tbtn small" data-key="kick" aria-label="Kick">KICK</button>
+        <button class="tbtn small" data-key="nitro" aria-label="Nitro">NITRO</button>
+        <button class="tbtn" data-key="brake" aria-label="Brake">BRAKE</button>
+        <button class="tbtn gas" data-key="accel" aria-label="Throttle">GAS</button>
+      </div>
+    </div>
+
+    <main id="menu" class="overlay">
+      <div class="panel">
+        <h1 class="logo">ROAD<span>RIOT</span></h1>
+        <p class="tagline">Online moto combat racing · up to 8 riders per room</p>
+
+        <label class="field">
+          <span>Rider name</span>
+          <input id="nameInput" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="Rider" />
+        </label>
+
+        <div class="row">
+          <button id="quickPlay" class="btn primary">QUICK PLAY</button>
+          <button id="createRoom" class="btn">CREATE ROOM</button>
+        </div>
+
+        <div class="row join">
+          <input id="codeInput" type="text" maxlength="4" autocomplete="off" spellcheck="false" placeholder="CODE" aria-label="Room code" />
+          <button id="joinRoom" class="btn">JOIN</button>
+        </div>
+
+        <div id="roomList" class="room-list" aria-live="polite"></div>
+
+        <details class="controls">
+          <summary>Controls</summary>
+          <ul>
+            <li><b>W / ↑</b> throttle · <b>S / ↓</b> brake</li>
+            <li><b>A D / ← →</b> steer</li>
+            <li><b>Shift</b> nitro boost</li>
+            <li><b>Space</b> punch · <b>K</b> kick (grab a club to hit harder)</li>
+            <li><b>M</b> mute · <b>Esc</b> leave race</li>
+          </ul>
+        </details>
+        <p class="legal">An original game inspired by 90s arcade moto-combat racers. Not affiliated with, or endorsed by, any existing game franchise.</p>
+        <p id="menuError" class="error" role="alert"></p>
+      </div>
+    </main>
+
+    <section id="lobby" class="overlay hidden">
+      <div class="panel wide">
+        <h2>ROOM <span id="lobbyCode" class="code">----</span></h2>
+        <p class="tagline">Share the code — friends pick <b>JOIN</b> and type it in.</p>
+        <ol id="lobbyPlayers" class="players"></ol>
+        <label class="toggle hidden" id="botToggleWrap">
+          <input type="checkbox" id="botToggle" checked />
+          <span>Fill empty slots with AI riders</span>
+        </label>
+        <div class="row">
+          <button id="readyBtn" class="btn primary">READY UP</button>
+          <button id="startBtn" class="btn hidden">START RACE</button>
+          <button id="leaveBtn" class="btn ghost">LEAVE</button>
+        </div>
+        <p id="lobbyHint" class="hint">Waiting for riders…</p>
+      </div>
+    </section>
+
+    <section id="results" class="overlay hidden">
+      <div class="panel wide">
+        <h2>RACE RESULTS</h2>
+        <ol id="resultsList" class="players"></ol>
+        <p id="resultsHint" class="hint"></p>
+      </div>
+    </section>
+
+    <div id="countdown" class="countdown hidden" aria-hidden="true"></div>
+    <div id="connState" class="conn hidden"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="/js/main.js"></script>
+  </body>
+</html>
